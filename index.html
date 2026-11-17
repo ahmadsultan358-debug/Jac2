@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1e3a8a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<title>أرشيف مستودع قطع الغيار - JACI (النسخة الشاملة)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+    :root {
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --ink: #1e293b;
+        --mut: #64748b;
+        --line: #cbd5e1;
+        --primary: #1e3a8a;
+        --primary-hover: #1d4ed8;
+        --accent: #d97706;
+        --bad: #dc2626;
+        --ok: #16a34a;
+        --soft: #f1f5f9;
+        --grad: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+    }
+
+    [data-theme="dark"] {
+        --bg: #090d16;
+        --card: #111827;
+        --ink: #f3f4f6;
+        --mut: #9ca3af;
+        --line: #374151;
+        --primary: #3b82f6;
+        --primary-hover: #60a5fa;
+        --accent: #fbbf24;
+        --bad: #ef4444;
+        --ok: #22c55e;
+        --soft: #1f2937;
+        --grad: linear-gradient(135deg, #0b1329 0%, #1e293b 100%);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif; transition: background-color 0.25s, color 0.25s, border-color 0.25s; }
+
+    body {
+        background-color: var(--bg);
+        color: var(--ink);
+        font-size: 14px;
+        line-height: 1.5;
+        padding-bottom: 85px;
+    }
+
+    @media (min-width: 769px) {
+        body { padding-bottom: 30px; }
+    }
+
+    /* Header */
+    header {
+        background: var(--grad);
+        color: #fff;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 3px solid var(--accent);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #fff; }
+    .logo {
+        width: 44px;
+        height: 44px;
+        background: #fff;
+        border-radius: 10px;
+        padding: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        flex-shrink: 0;
+    }
+    .logo svg { width: 100%; height: 100%; object-fit: contain; }
+    .brand-text b { font-size: 15px; display: block; line-height: 1.2; }
+    .brand-text small { font-size: 10px; color: var(--accent); font-weight: 600; }
+
+    /* Desktop Navigation */
+    nav.desktop-nav { display: none; gap: 6px; flex-wrap: wrap; }
+    @media (min-width: 769px) { nav.desktop-nav { display: flex; } }
+    nav.desktop-nav button {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #fff;
+        padding: 8px 14px;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    nav.desktop-nav button:hover, nav.desktop-nav button.active {
+        background: var(--accent);
+        color: #0f172a;
+        border-color: var(--accent);
+    }
+
+    /* Mobile Bottom Navigation */
+    nav.mobile-nav {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: var(--card);
+        border-top: 2px solid var(--accent);
+        display: flex;
+        justify-content: space-around;
+        padding: 6px 2px env(safe-area-inset-bottom, 8px);
+        z-index: 60;
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.15);
+    }
+    @media (min-width: 769px) { nav.mobile-nav { display: none; } }
+    nav.mobile-nav button {
+        background: transparent;
+        border: 0;
+        color: var(--mut);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        font-weight: 700;
+        gap: 2px;
+        padding: 4px 2px;
+        border-radius: 8px;
+        flex: 1;
+        cursor: pointer;
+    }
+    nav.mobile-nav button span.ico { font-size: 17px; }
+    nav.mobile-nav button.active { color: var(--primary); background: rgba(217, 119, 6, 0.15); }
+
+    /* Main Container & Sections */
+    main { max-width: 1300px; margin: 20px auto; padding: 0 14px; }
+    .section { display: none; }
+    .section.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        margin-bottom: 18px;
+    }
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+        border-bottom: 1px solid var(--soft);
+        padding-bottom: 12px;
+    }
+    .card-header h2 { font-size: 16px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 18px; }
+    @media (min-width: 769px) { .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
+    .stat-box { background: var(--card); padding: 16px; border-radius: 12px; border: 1px solid var(--line); border-right: 4px solid var(--accent); }
+    .stat-box span { font-size: 11px; color: var(--mut); display: block; margin-bottom: 4px; font-weight: 600; }
+    .stat-box b { font-size: 22px; color: var(--primary); }
+
+    .action-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 640px) { .action-grid { grid-template-columns: repeat(auto-fit, minmax(210px, max-content)); } }
+
+    .bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+    input, select, textarea { font: inherit; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--ink); width: 100%; }
+
+    .btn {
+        padding: 11px 18px;
+        border: 0;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        font-size: 13px;
+        transition: 0.15s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-success { background: var(--ok); color: #fff; }
+    .btn-warning { background: var(--accent); color: #fff; }
+    .btn-danger { background: var(--bad); color: #fff; }
+    .btn-outline { background: var(--soft); border: 1px solid var(--line); color: var(--ink); box-shadow: none; }
+
+    .hero-logo-box {
+        width: 110px;
+        height: 110px;
+        margin: 0 auto 16px;
+        background: #fff;
+        border-radius: 22px;
+        padding: 8px;
+        box-shadow: 0 6px 20px rgba(30, 58, 138, 0.15);
+        border: 2px solid var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--line); -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th { background: var(--soft); font-weight: 700; color: var(--mut); }
+    tr:hover { background: rgba(217, 119, 6, 0.04); }
+
+    .android-pkg-box {
+        background: var(--soft);
+        border: 2px dashed var(--accent);
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 18px;
+    }
+
+    #toast {
+        position: fixed;
+        bottom: 90px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--primary);
+        color: #fff;
+        padding: 12px 22px;
+        border-radius: 12px;
+        border: 2px solid var(--accent);
+        font-weight: 700;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        text-align: center;
+        width: max-content;
+        max-width: 90vw;
+        font-size: 13.5px;
+    }
+    @media (min-width: 769px) { #toast { bottom: 30px; } }
+
+    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 500; padding: 14px; }
+    .modal { background: var(--card); border-radius: 18px; padding: 24px; max-width: 440px; width: 100%; border: 2px solid var(--accent); max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+</style>
+</head>
+<body>
+
+<header>
+    <a href="#" class="brand" onclick="switchTab('home'); return false;">
+        <div class="logo">
+            <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22 45 L78 18 C62 65 72 105 95 142 L42 122 C25 112 22 95 22 45 Z" fill="#1e40af"></path>
+                <path d="M88 10 L108 22 C92 65 102 105 122 142 L102 148 C82 110 74 62 88 10 Z" fill="#ea580c"></path>
+                <path d="M118 22 L138 34 C122 72 132 108 148 138 L130 144 C112 110 104 68 118 22 Z" fill="#dc2626"></path>
+                <path d="M148 34 L168 48 C154 78 162 108 175 130 L158 136 C142 110 136 74 148 34 Z" fill="#eab308"></path>
+                <text x="100" y="202" font-family="system-ui, sans-serif" font-weight="900" font-size="56" fill="#1e3a8a" text-anchor="middle">Jaci</text>
+            </svg>
+        </div>
+        <div class="brand-text">
+            <b>JACI Warehouse</b>
+            <small>نظام الأرشيف الآلي</small>
+        </div>
+    </a>
+
+    <nav class="desktop-nav">
+        <button onclick="switchTab('home')" class="" id="dnav-home">🏠 الرئيسية</button>
+        <button onclick="switchTab('items')" id="dnav-items">📦 الأصناف</button>
+        <button onclick="switchTab('vouchers')" id="dnav-vouchers">🧾 السندات</button>
+        <button onclick="switchTab('disb')" id="dnav-disb">📤 المصروفات</button>
+        <button onclick="switchTab('archive')" id="dnav-archive">🗂️ الأرشيف والكاميرا</button>
+        <button onclick="switchTab('templates')" id="dnav-templates">📑 القوالب</button>
+        <button onclick="switchTab('backup')" id="dnav-backup" class="active">💾 النسخ والتطبيق</button>
+    </nav>
+
+    <button id="theme-toggle-btn" onclick="toggleDarkMode()" title="تبديل الوضع الليلي والنهاري" style="background: rgba(255,255,255,0.15); border: 1px solid var(--accent); color: #fff; width: 40px; height: 40px; border-radius: 10px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">🌙</button>
+</header>
+
+<nav class="mobile-nav">
+    <button onclick="switchTab('home')" class="" id="mnav-home"><span class="ico">🏠</span><span>الرئيسية</span></button>
+    <button onclick="switchTab('items')" id="mnav-items"><span class="ico">📦</span><span>الأصناف</span></button>
+    <button onclick="switchTab('vouchers')" id="mnav-vouchers"><span class="ico">🧾</span><span>السندات</span></button>
+    <button onclick="switchTab('disb')" id="mnav-disb"><span class="ico">📤</span><span>الصرف</span></button>
+    <button onclick="switchTab('archive')" id="mnav-archive"><span class="ico">📷</span><span>الأرشيف</span></button>
+    <button onclick="switchTab('templates')" id="mnav-templates"><span class="ico">📑</span><span>القوالب</span></button>
+    <button onclick="switchTab('backup')" id="mnav-backup" class="active"><span class="ico">💾</span><span>النسخ</span></button>
+</nav>
+
+<main>
+    <!-- 1. الرئيسية -->
+    <section id="sec-home" class="section">
+        <div class="card" style="text-align: center; padding: 28px 16px;">
+            <div class="hero-logo-box">
+                <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                    <path d="M22 45 L78 18 C62 65 72 105 95 142 L42 122 C25 112 22 95 22 45 Z" fill="#1e40af"></path>
+                    <path d="M88 10 L108 22 C92 65 102 105 122 142 L102 148 C82 110 74 62 88 10 Z" fill="#ea580c"></path>
+                    <path d="M118 22 L138 34 C122 72 132 108 148 138 L130 144 C112 110 104 68 118 22 Z" fill="#dc2626"></path>
+                    <path d="M148 34 L168 48 C154 78 162 108 175 130 L158 136 C142 110 136 74 148 34 Z" fill="#eab308"></path>
+                    <text x="100" y="202" font-family="system-ui, sans-serif" font-weight="900" font-size="56" fill="#1e3a8a" text-anchor="middle">Jaci</text>
+                </svg>
+            </div>
+            <h1 style="font-size: 20px; color: var(--primary); margin-bottom: 6px;">نظام إدارة وأرشيف مستودع قطع الغيار</h1>
+            <p style="color: var(--mut); margin-bottom: 20px; font-size: 13.5px;">الشركة الأردنية العربية للصناعات الكيماوية (JACI)</p>
+            <div class="action-grid" style="justify-content: center;">
+                <button class="btn btn-primary" onclick="switchTab('items')">📦 إدارة المستودع والأصناف</button>
+                <button class="btn btn-warning" onclick="switchTab('templates')">📑 تحميل قوالب Excel المنسقة</button>
+                <button class="btn btn-success" onclick="requestAppPermissions()">🔔 تفعيل التنبيهات والفورية</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box"><span>إجمالي الأصناف</span><b id="st-items">3</b></div>
+            <div class="stat-box"><span>إجمالي السندات</span><b id="st-vouchers">1</b></div>
+            <div class="stat-box"><span>سجلات الصرف</span><b id="st-disb">1</b></div>
+            <div class="stat-box"><span>الملفات والأرشيف</span><b id="st-archive">1</b></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>⚙️ إدارة وصيانة النظام</h2>
+            </div>
+            <p style="color: var(--mut); margin-bottom: 14px; font-size: 13px;">إفراغ بيانات المعاملات والمخزون بكلمة مرور سرية مع الإبقاء التام على الجداول الأساسية والتنسيقات.</p>
+            <div class="action-grid">
+                <button class="btn btn-danger" onclick="openResetModal()">🗑️ إفراغ بيانات النظام (كلمة المرور)</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. الأصناف -->
+    <section id="sec-items" class="section">
+        <div class="card">
+            <div class="card-header">
+                <h2>📦 الأصناف وقطع الغيار</h2>
+                <div class="action-grid">
+                    <button class="btn btn-primary" onclick="openItemModal()">+ صنف جديد</button>
+                    <button class="btn btn-success" onclick="exportCSV('items')">📤 تصدير الأصناف</button>
+                </div>
+            </div>
+            <div class="bar">
+                <input type="text" id="search-items" placeholder="ابحث برمز الصنف أو الوصف..." onkeyup="renderItemsTable()" style="flex:1;">
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>رمز الصنف (SKU)</th><th>الوصف</th><th>التصنيف</th><th>الموقع</th><th>الكمية</th><th>الحد الأدنى</th><th>إجراءات</th></tr>
+                    </thead>
+                    <tbody id="tbody-items"><tr>
+            <td><b>SP-1001</b></td>
+            <td>فلتر زيت هيدروليكي رئيسي</td>
+            <td>قطع ميكانيكية</td>
+            <td>رف A-01</td>
+            <td style="color:var(--ok); font-weight:bold;">25</td>
+            <td>5</td>
+            <td><button class="btn btn-danger" style="padding:3px 6px; font-size:10.5px;" onclick="deleteItem('SP-1001')">حذف</button></td>
+        </tr><tr>
+            <td><b>SP-1002</b></td>
+            <td>حساس حرارة محرك إلكتروني</td>
+            <td>قطع كهربائية</td>
+            <td>رف B-04</td>
+            <td style="color:var(--ok); font-weight:bold;">8</td>
+            <td>3</td>
+            <td><button class="btn btn-danger" style="padding:3px 6px; font-size:10.5px;" onclick="deleteItem('SP-1002')">حذف</button></td>
+        </tr><tr>
+            <td><b>SP-1003</b></td>
+            <td>زيت هيدروليك عالي اللزوجة (20 لتر)</td>
+            <td>زيوت ومستهلكات</td>
+            <td>مستودع 1</td>
+            <td style="color:var(--ok); font-weight:bold;">40</td>
+            <td>10</td>
+            <td><button class="btn btn-danger" style="padding:3px 6px; font-size:10.5px;" onclick="deleteItem('SP-1003')">حذف</button></td>
+        </tr></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. السندات -->
+    <section id="sec-vouchers" class="section">
+        <div class="card">
+            <div class="card-header">
+                <h2>🧾 سندات الاستلام والموردين</h2>
+                <div class="action-grid">
+                    <button class="btn btn-primary" onclick="openVoucherModal()">+ سند جديد</button>
+                    <button class="btn btn-success" onclick="exportCSV('vouchers')">📤 تصدير السندات</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>رقم السند</th><th>رقم الفاتورة</th><th>المورد</th><th>التاريخ</th><th>المبلغ (JD)</th><th>ملاحظات</th></tr>
+                    </thead>
+                    <tbody id="tbody-vouchers"><tr><td><b>RCV-001</b></td><td>INV-9901</td><td>الشركة الفنية المتقدمة</td><td>2026-11-01</td><td><b>450</b></td><td>توريد قطع غيار دورية</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. المصروفات -->
+    <section id="sec-disb" class="section">
+        <div class="card">
+            <div class="card-header">
+                <h2>📤 أذونات الصرف اليومي</h2>
+                <div class="action-grid">
+                    <button class="btn btn-primary" onclick="openDisbModal()">+ صرف صنف</button>
+                    <button class="btn btn-success" onclick="exportCSV('disb')">📤 تصدير الصرف</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>رقم الصرف</th><th>التاريخ</th><th>الصنف</th><th>الكمية</th><th>مكان الصرف</th><th>المستلم</th><th>ملاحظات</th></tr>
+                    </thead>
+                    <tbody id="tbody-disb"><tr><td><b>DSB-001</b></td><td>2026-11-02</td><td>فلتر زيت هيدروليكي رئيسي</td><td><b>2</b></td><td>الصيانة العامة</td><td>أحمد سلطان</td><td>صيانة خط الإنتاج 1</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. الأرشيف والكاميرا -->
+    <section id="sec-archive" class="section">
+        <div class="card">
+            <div class="card-header">
+                <h2>🗂️ الأرشيف، الكاميرا والملفات</h2>
+                <div class="action-grid">
+                    <button class="btn btn-warning" onclick="startCamera()">📷 فتح الكاميرا</button>
+                    <button class="btn btn-warning" onclick="startVoiceRecord()">🎙️ تسجيل صوتي</button>
+                </div>
+            </div>
+            <div id="media-capture-box" style="display:none; margin-bottom: 12px; text-align: center; background: var(--soft); padding: 12px; border-radius: 12px;">
+                <video id="camera-stream" autoplay="" playsinline="" style="max-width: 100%; max-height: 250px; border-radius: 8px;"></video>
+                <canvas id="camera-canvas" style="display:none;"></canvas>
+                <div class="action-grid" style="justify-content: center; margin-top: 10px;">
+                    <button class="btn btn-success" onclick="takeSnapshot()">📸 التقاط وحفظ</button>
+                    <button class="btn btn-danger" onclick="stopCamera()">✖️ إغلاق</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>النوع</th><th>العنوان</th><th>الرقم المرجعي</th><th>التاريخ</th><th>رمز الاستجابة (QR)</th></tr>
+                    </thead>
+                    <tbody id="tbody-archive"><tr><td>فاتورة PDF</td><td><b>فاتورة توريد قطع غيار نوفمبر</b></td><td>INV-9901</td><td>2026-11-01</td><td><div id="qr-0" style="width:50px; height:50px;" title="فاتورة توريد قطع غيار نوفمبر - INV-9901"><canvas width="50" height="50"></canvas><img style="display: none;"></div></td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. القوالب -->
+    <section id="sec-templates" class="section">
+        <div class="card">
+            <div class="card-header">
+                <h2>📑 قوالب Excel واستيراد البيانات</h2>
+                <div class="action-grid">
+                    <button class="btn btn-success" onclick="document.getElementById('import-sheet-input').click()">📤 رفع جدول معبأ</button>
+                    <input type="file" id="import-sheet-input" accept=".xls,.xml,.csv,.txt" style="display:none" onchange="handleSheetImport(event)">
+                </div>
+            </div>
+            <p style="color: var(--mut); margin-bottom: 16px; font-size: 13px;">
+                قم بتحميل القوالب المنسقة بحدود كاملة، عبّئها ببيانات المستودع، ثم ارفعها عبر زر <b>"رفع جدول معبأ"</b> لإدخالها فوراً:
+            </p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+                <div class="card" style="margin:0; background: var(--soft); display:flex; flex-direction:column; justify-content:space-between; border-top: 3px solid var(--primary);">
+                    <div><h3 style="margin-bottom: 6px; font-size: 15px; color: var(--primary);">📊 قالب الأصناف والمخزون</h3><p style="font-size: 12px; color: var(--mut); margin-bottom: 10px;">جدول منسق بحدود كاملة.</p></div>
+                    <button class="btn btn-primary" style="width:100%;" onclick="downloadStyledTemplate('items')">⬇️ تحميل القالب (.xls)</button>
+                </div>
+                <div class="card" style="margin:0; background: var(--soft); display:flex; flex-direction:column; justify-content:space-between; border-top: 3px solid var(--accent);">
+                    <div><h3 style="margin-bottom: 6px; font-size: 15px; color: var(--primary);">🧾 قالب سندات الاستلام</h3><p style="font-size: 12px; color: var(--mut); margin-bottom: 10px;">جدول منسق بحدود كاملة.</p></div>
+                    <button class="btn btn-primary" style="width:100%;" onclick="downloadStyledTemplate('vouchers')">⬇️ تحميل القالب (.xls)</button>
+                </div>
+                <div class="card" style="margin:0; background: var(--soft); display:flex; flex-direction:column; justify-content:space-between; border-top: 3px solid var(--ok);">
+                    <div><h3 style="margin-bottom: 6px; font-size: 15px; color: var(--primary);">📤 قالب أذونات الصرف</h3><p style="font-size: 12px; color: var(--mut); margin-bottom: 10px;">جدول منسق بحدود كاملة.</p></div>
+                    <button class="btn btn-primary" style="width:100%;" onclick="downloadStyledTemplate('disb')">⬇️ تحميل القالب (.xls)</button>
+                </div>
+                <div class="card" style="margin:0; background: var(--soft); display:flex; flex-direction:column; justify-content:space-between; border-top: 3px solid var(--ink);">
+                    <div><h3 style="margin-bottom: 6px; font-size: 15px; color: var(--primary);">🏭 قالب الموردين</h3><p style="font-size: 12px; color: var(--mut); margin-bottom: 10px;">جدول الموردين المعتمدين.</p></div>
+                    <button class="btn btn-primary" style="width:100%;" onclick="downloadStyledTemplate('suppliers')">⬇️ تحميل القالب (.xls)</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. النسخ الاحتياطي وحزمة تحويل الموقع إلى تطبيق أندرويد -->
+    <section id="sec-backup" class="section active">
+        <div class="card">
+            <div class="card-header">
+                <h2>💾 النسخ الاحتياطي وحزمة تطبيق الأندرويد</h2>
+            </div>
+
+            <div class="android-pkg-box">
+                <h3 style="font-size: 15px; color: var(--primary); margin-bottom: 6px;">📱 حزمة تحويل الموقع إلى تطبيق أندرويد (Android App Package)</h3>
+                <p style="font-size: 12.5px; color: var(--mut); margin-bottom: 14px;">
+                    قم بتحميل حزمة التطبيق الكاملة في ملف مضغوط واحد (ZIP) أو حمل كل ملف على حدة لرفعها على GitHub أو استخدامها في Android Studio و PWABuilder لتحويل المنظومة إلى تطبيق أندرويد مستقل يعمل أوف لاين:
+                </p>
+                <div style="margin-bottom: 14px;">
+                    <button class="btn btn-success" style="width: 100%; font-size: 14px; padding: 13px;" onclick="downloadFullZipPackage()">📦 تحميل المشروع كامل في ملف مضغوط (JACI-App.zip)</button>
+                </div>
+                <div class="action-grid">
+                    <button class="btn btn-primary" onclick="downloadAndroidAppPackage('index.html')">📲 تحميل ملف التطبيق (index.html)</button>
+                    <button class="btn btn-warning" onclick="downloadAndroidAppPackage('manifest.json')">⚙️ تحميل إعدادات الأندرويد (manifest.json)</button>
+                    <button class="btn btn-outline" onclick="downloadAndroidAppPackage('sw.js')">⚡ تحميل مشغل الأوفلاين (sw.js)</button>
+                </div>
+            </div>
+
+            <h3 style="font-size: 14px; color: var(--ink); margin-bottom: 10px;">🗄️ إدارة بيانات المستودع (JSON)</h3>
+            <div class="action-grid">
+                <button class="btn btn-success" onclick="downloadJSONBackup()">💾 تحميل نسخة احتياطية للبيانات (.json)</button>
+                <button class="btn btn-outline" onclick="document.getElementById('file-restore').click()">🔄 استعادة البيانات من نسخة احتياطية</button>
+                <input type="file" id="file-restore" accept=".json" style="display:none" onchange="restoreJSONBackup(event)">
+            </div>
+        </div>
+    </section>
+
+    <footer style="text-align: center; padding: 20px 10px; color: var(--mut); font-size: 11.5px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+        <div style="width: 36px; height: 36px; background: #fff; border-radius: 8px; padding: 2px; border: 1px solid var(--line);">
+            <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                <path d="M22 45 L78 18 C62 65 72 105 95 142 L42 122 C25 112 22 95 22 45 Z" fill="#1e3a8a"></path>
+                <path d="M88 10 L108 22 C92 65 102 105 122 142 L102 148 C82 110 74 62 88 10 Z" fill="#ea580c"></path>
+                <path d="M118 22 L138 34 C122 72 132 108 148 138 L130 144 C112 110 104 68 118 22 Z" fill="#dc2626"></path>
+                <path d="M148 34 L168 48 C154 78 162 108 175 130 L158 136 C142 110 136 74 148 34 Z" fill="#eab308"></path>
+                <text x="100" y="202" font-family="system-ui, sans-serif" font-weight="900" font-size="56" fill="#1e3a8a" text-anchor="middle">Jaci</text>
+            </svg>
+        </div>
+        <span>الشركة الأردنية العربية للصناعات الكيماوية (JACI) © 2026 - جميع الحقوق محفوظة</span>
+    </footer>
+</main>
+
+<!-- نافذة إضافة صنف -->
+<div id="modal-item" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-bottom: 12px; color: var(--primary); font-size: 16px;">➕ إضافة صنف جديد</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <input type="text" id="inp-sku" placeholder="رمز الصنف (SKU) *">
+            <input type="text" id="inp-name" placeholder="وصف الصنف *">
+            <input type="text" id="inp-cat" placeholder="التصنيف">
+            <input type="text" id="inp-loc" placeholder="الموقع / الرف">
+            <input type="number" id="inp-qty" placeholder="الكمية الافتتاحية" value="10">
+            <input type="number" id="inp-min" placeholder="الحد الأدنى للتنبيه" value="3">
+            <div class="action-grid" style="margin-top: 8px;">
+                <button class="btn btn-primary" onclick="saveNewItem()">💾 حفظ</button>
+                <button class="btn btn-outline" onclick="closeModals()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة إضافة سند -->
+<div id="modal-voucher" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-bottom: 12px; color: var(--primary); font-size: 16px;">🧾 سند استلام جديد</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <input type="text" id="v-no" placeholder="رقم السند (مثال: RCV-002)">
+            <input type="text" id="v-inv" placeholder="رقم الفاتورة">
+            <input type="text" id="v-sup" placeholder="اسم المورد">
+            <input type="number" id="v-total" placeholder="المبلغ الإجمالي (JD)">
+            <input type="text" id="v-notes" placeholder="ملاحظات">
+            <div class="action-grid" style="margin-top: 8px;">
+                <button class="btn btn-primary" onclick="saveNewVoucher()">💾 حفظ السند</button>
+                <button class="btn btn-outline" onclick="closeModals()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة إضافة صرف -->
+<div id="modal-disb" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-bottom: 12px; color: var(--primary); font-size: 16px;">📤 إذن صرف جديد</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <input type="text" id="d-id" placeholder="رقم الإذن (مثال: DSB-002)">
+            <input type="text" id="d-name" placeholder="اسم أو وصف الصنف">
+            <input type="number" id="d-qty" placeholder="الكمية المصروفة" value="1">
+            <input type="text" id="d-place" placeholder="مكان الصرف / القسم">
+            <input type="text" id="d-receiver" placeholder="اسم المستلم">
+            <input type="text" id="d-notes" placeholder="ملاحظات">
+            <div class="action-grid" style="margin-top: 8px;">
+                <button class="btn btn-primary" onclick="saveNewDisb()">💾 اعتماد الصرف</button>
+                <button class="btn btn-outline" onclick="closeModals()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة التحقق السري لإفراغ المحتويات (كلمة المرور 15539550) -->
+<div id="modal-reset" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-bottom: 8px; color: var(--bad); font-size: 16px;">🔐 تأكيد إفراغ محتويات النظام</h3>
+        <p style="font-size: 12.5px; color: var(--mut); margin-bottom: 12px;">سيتم حذف كافة الحركات والمعاملات والمخزون مع الإبقاء التام على الجداول الأساسية والتنسيقات. أدخل كلمة المرور السرية:</p>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <input type="password" id="inp-reset-pin" placeholder="أدخل كلمة المرور..." inputmode="numeric">
+            <div class="action-grid">
+                <button class="btn btn-danger" onclick="executeFactoryReset()">تأكيد الإفراغ</button>
+                <button class="btn btn-outline" onclick="closeModals()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة بديلة لتنزيل الملفات على الهواتف -->
+<div id="modal-file-dl" class="modal-bg">
+    <div class="modal">
+        <h3 style="margin-bottom: 8px; color: var(--primary); font-size: 16px;" id="dl-modal-title">💾 جاهز للتنزيل في الهاتف</h3>
+        <p style="font-size: 12.5px; color: var(--mut); margin-bottom: 12px;">إذا لم يبدأ التنزيل تلقائياً في متصفح هاتفك، اضغط مطولاً على الزر أدناه واختر <b>"تنزيل الرابط"</b> أو <b>"حفظ باسم"</b>:</p>
+        <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+            <a id="dl-modal-link" class="btn btn-success" style="width:100%; text-align:center;" href="#" download="">📥 اضغط هنا لتنزيل الملف</a>
+            <button class="btn btn-outline" style="width:100%;" onclick="closeModals()">إغلاق</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'JACI_WAREHOUSE_DB_2026_FINAL';
+
+const DEFAULT_DB = {
+    items: [
+        { sku: 'SP-1001', name: 'فلتر زيت هيدروليكي رئيسي', category: 'قطع ميكانيكية', location: 'رف A-01', qty: 25, min: 5 },
+        { sku: 'SP-1002', name: 'حساس حرارة محرك إلكتروني', category: 'قطع كهربائية', location: 'رف B-04', qty: 8, min: 3 },
+        { sku: 'SP-1003', name: 'زيت هيدروليك عالي اللزوجة (20 لتر)', category: 'زيوت ومستهلكات', location: 'مستودع 1', qty: 40, min: 10 }
+    ],
+    vouchers: [
+        { no: 'RCV-001', inv: 'INV-9901', sup: 'الشركة الفنية المتقدمة', date: '2026-11-01', total: 450, notes: 'توريد قطع غيار دورية' }
+    ],
+    disb: [
+        { id: 'DSB-001', date: '2026-11-02', name: 'فلتر زيت هيدروليكي رئيسي', qty: 2, place: 'الصيانة العامة', receiver: 'أحمد سلطان', notes: 'صيانة خط الإنتاج 1' }
+    ],
+    archive: [
+        { title: 'فاتورة توريد قطع غيار نوفمبر', type: 'فاتورة PDF', ref: 'INV-9901', date: '2026-11-01', note: 'معتمدة ومختومة' }
+    ]
+};
+
+let db = loadDB();
+
+function loadDB() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT_DB));
+    } catch(e) {
+        return JSON.parse(JSON.stringify(DEFAULT_DB));
+    }
+}
+
+function saveDB() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+        updateStats();
+    } catch(e) {
+        showToast('خطأ في الحفظ المحلي');
+    }
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 3200);
+}
+
+function switchTab(tabId) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    
+    const sec = document.getElementById('sec-' + tabId);
+    const dBtn = document.getElementById('dnav-' + tabId);
+    const mBtn = document.getElementById('mnav-' + tabId);
+    if(sec) sec.classList.add('active');
+    if(dBtn) dBtn.classList.add('active');
+    if(mBtn) mBtn.classList.add('active');
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    renderAllTables();
+}
+
+function updateStats() {
+    const stItems = document.getElementById('st-items');
+    const stVouchers = document.getElementById('st-vouchers');
+    const stDisb = document.getElementById('st-disb');
+    const stArchive = document.getElementById('st-archive');
+    if(stItems) stItems.textContent = db.items.length;
+    if(stVouchers) stVouchers.textContent = db.vouchers.length;
+    if(stDisb) stDisb.textContent = db.disb.length;
+    if(stArchive) stArchive.textContent = db.archive.length;
+}
+
+function renderAllTables() {
+    renderItemsTable();
+    renderVouchersTable();
+    renderDisbTable();
+    renderArchiveTable();
+    updateStats();
+}
+
+function renderItemsTable() {
+    const query = (document.getElementById('search-items')?.value || '').toLowerCase();
+    const tbody = document.getElementById('tbody-items');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+    
+    const filtered = db.items.filter(i => i.sku.toLowerCase().includes(query) || i.name.toLowerCase().includes(query));
+    if(filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--mut);">لا توجد أصناف مطابقة</td></tr>`;
+        return;
+    }
+    
+    filtered.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><b>${item.sku}</b></td>
+            <td>${item.name}</td>
+            <td>${item.category || '-'}</td>
+            <td>${item.location || '-'}</td>
+            <td style="color:${item.qty <= item.min ? 'var(--bad)' : 'var(--ok)'}; font-weight:bold;">${item.qty}</td>
+            <td>${item.min}</td>
+            <td><button class="btn btn-danger" style="padding:3px 6px; font-size:10.5px;" onclick="deleteItem('${item.sku}')">حذف</button></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderVouchersTable() {
+    const tbody = document.getElementById('tbody-vouchers');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+    if(db.vouchers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--mut);">لا توجد سندات مسجلة</td></tr>`;
+        return;
+    }
+    db.vouchers.forEach(v => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><b>${v.no}</b></td><td>${v.inv || '-'}</td><td>${v.sup}</td><td>${v.date}</td><td><b>${v.total}</b></td><td>${v.notes || '-'}</td>`;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderDisbTable() {
+    const tbody = document.getElementById('tbody-disb');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+    if(db.disb.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--mut);">لا توجد حركات صرف مسجلة</td></tr>`;
+        return;
+    }
+    db.disb.forEach(d => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><b>${d.id}</b></td><td>${d.date}</td><td>${d.name}</td><td><b>${d.qty}</b></td><td>${d.place}</td><td>${d.receiver}</td><td>${d.notes || '-'}</td>`;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderArchiveTable() {
+    const tbody = document.getElementById('tbody-archive');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+    db.archive.forEach((a, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${a.type}</td><td><b>${a.title}</b></td><td>${a.ref || '-'}</td><td>${a.date}</td><td><div id="qr-${idx}" style="width:50px; height:50px;"></div></td>`;
+        tbody.appendChild(tr);
+        setTimeout(() => {
+            const el = document.getElementById(`qr-${idx}`);
+            if(el && window.QRCode) {
+                el.innerHTML = '';
+                new QRCode(el, { text: `${a.title} - ${a.ref}`, width: 50, height: 50 });
+            }
+        }, 50);
+    });
+}
+
+function openItemModal() { document.getElementById('modal-item').style.display = 'flex'; }
+function openVoucherModal() { document.getElementById('modal-voucher').style.display = 'flex'; }
+function openDisbModal() { document.getElementById('modal-disb').style.display = 'flex'; }
+function closeModals() { document.querySelectorAll('.modal-bg').forEach(m => m.style.display = 'none'); }
+
+function saveNewItem() {
+    const sku = document.getElementById('inp-sku').value.trim();
+    const name = document.getElementById('inp-name').value.trim();
+    if(!sku || !name) { showToast('يرجى إدخال الرمز والوصف'); return; }
+    const qty = parseFloat(document.getElementById('inp-qty').value) || 0;
+    const min = parseFloat(document.getElementById('inp-min').value) || 3;
+    db.items.push({ sku, name, category: document.getElementById('inp-cat').value.trim(), location: document.getElementById('inp-loc').value.trim(), qty, min });
+    saveDB();
+    closeModals();
+    renderAllTables();
+    showToast('تمت إضافة الصنف بنجاح');
+}
+
+function saveNewVoucher() {
+    const no = document.getElementById('v-no').value.trim() || ('RCV-' + Date.now().toString().slice(-4));
+    const sup = document.getElementById('v-sup').value.trim() || 'مورد عام';
+    const total = parseFloat(document.getElementById('v-total').value) || 0;
+    db.vouchers.push({ no, inv: document.getElementById('v-inv').value.trim(), sup, date: new Date().toISOString().slice(0, 10), total, notes: document.getElementById('v-notes').value.trim() });
+    saveDB();
+    closeModals();
+    renderAllTables();
+    showToast('تم حفظ السند بنجاح');
+}
+
+function saveNewDisb() {
+    const id = document.getElementById('d-id').value.trim() || ('DSB-' + Date.now().toString().slice(-4));
+    const name = document.getElementById('d-name').value.trim() || 'صنف صرف';
+    const qty = parseFloat(document.getElementById('d-qty').value) || 1;
+    db.disb.push({ id, date: new Date().toISOString().slice(0, 10), name, qty, place: document.getElementById('d-place').value.trim() || 'عام', receiver: document.getElementById('d-receiver').value.trim() || 'موظف', notes: document.getElementById('d-notes').value.trim() });
+    saveDB();
+    closeModals();
+    renderAllTables();
+    showToast('تم اعتماد إذن الصرف بنجاح');
+}
+
+function deleteItem(sku) {
+    db.items = db.items.filter(i => i.sku !== sku);
+    saveDB();
+    renderAllTables();
+    showToast('تم حذف الصنف بنجاح');
+}
+
+function openResetModal() {
+    const inp = document.getElementById('inp-reset-pin');
+    if(inp) inp.value = '';
+    document.getElementById('modal-reset').style.display = 'flex';
+    setTimeout(() => inp && inp.focus(), 100);
+}
+
+function executeFactoryReset() {
+    const pin = (document.getElementById('inp-reset-pin')?.value || '').trim();
+    if(pin !== '15539550') {
+        showToast('⚠️ كلمة المرور غير صحيحة!');
+        return;
+    }
+    db = { items: [], vouchers: [], disb: [], archive: [] };
+    saveDB();
+    closeModals();
+    renderAllTables();
+    showToast('🧹 تم إفراغ كافة البيانات بنجاح وبقيت الجداول سليمة.');
+}
+
+/* محرك التنزيل المتوافق مع الهواتف والحواسيب (Blob + Data URI + Modal Fallback) */
+function mobileFriendlyDownload(filename, content, mimeType) {
+    try {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        
+        if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            document.getElementById('dl-modal-title').textContent = `📥 حفظ ملف: ${filename}`;
+            const dlLink = document.getElementById('dl-modal-link');
+            dlLink.href = url;
+            dlLink.download = filename;
+            dlLink.textContent = `⬇️ اضغط لحفظ (${filename})`;
+            document.getElementById('modal-file-dl').style.display = 'flex';
+        } else {
+            showToast(`✅ تم تنزيل الملف (${filename})`);
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }
+        document.body.removeChild(a);
+    } catch(e) {
+        const dataUrl = 'data:' + mimeType + ',' + encodeURIComponent(content);
+        document.getElementById('dl-modal-title').textContent = `📥 حفظ ملف: ${filename}`;
+        const dlLink = document.getElementById('dl-modal-link');
+        dlLink.href = dataUrl;
+        dlLink.download = filename;
+        dlLink.textContent = `⬇️ اضغط لحفظ (${filename})`;
+        document.getElementById('modal-file-dl').style.display = 'flex';
+    }
+}
+
+/* تنزيل حزمة تطبيق الأندرويد الكاملة (index.html, manifest.json, sw.js) */
+function downloadAndroidAppPackage(filename) {
+    if (filename === 'index.html') {
+        const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        mobileFriendlyDownload('index.html', fullHtml, 'text/html;charset=utf-8;');
+    } else if (filename === 'manifest.json') {
+        const logoSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 220'><rect width='200' height='220' rx='36' fill='%23ffffff'/><path d='M22 45 L78 18 C62 65 72 105 95 142 L42 122 C25 112 22 95 22 45 Z' fill='%231e40af'/><path d='M88 10 L108 22 C92 65 102 105 122 142 L102 148 C82 110 74 62 88 10 Z' fill='%23ea580c'/><path d='M118 22 L138 34 C122 72 132 108 148 138 L130 144 C112 110 104 68 118 22 Z' fill='%23dc2626'/><path d='M148 34 L168 48 C154 78 162 108 175 130 L158 136 C142 110 136 74 148 34 Z' fill='%23eab308'/><text x='100' y='202' font-family='sans-serif' font-weight='900' font-size='56' fill='%231e3a8a' text-anchor='middle'>Jaci</text></svg>`;
+        const iconDataUri = `data:image/svg+xml;utf8,${logoSvg}`;
+        const manifestObj = {
+            name: "JACI Warehouse - أرشيف مستودع قطع الغيار",
+            short_name: "JACI مستودع",
+            description: "نظام إدارة وأرشيف مستودع قطع الغيار - الشركة الأردنية العربية للصناعات الكيماوية",
+            start_url: "./index.html",
+            display: "standalone",
+            orientation: "any",
+            background_color: "#1e3a8a",
+            theme_color: "#1e3a8a",
+            dir: "rtl",
+            lang: "ar",
+            icons: [
+                { src: iconDataUri, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+                { src: iconDataUri, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+            ]
+        };
+        mobileFriendlyDownload('manifest.json', JSON.stringify(manifestObj, null, 2), 'application/manifest+json;charset=utf-8;');
+    } else if (filename === 'sw.js') {
+        const swContent = `const CACHE_NAME = 'jaci-warehouse-offline-v1';
+const ASSETS = ['./', './index.html', './manifest.json'];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+    ))
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(cached => cached || fetch(event.request).catch(() => caches.match('./index.html')))
+  );
+});`;
+        mobileFriendlyDownload('sw.js', swContent, 'application/javascript;charset=utf-8;');
+    }
+}
+
+/* مولد أرشيف ZIP مدمج بدون الحاجة لأي مكتبات خارجية (Offline Pure JS ZIP Builder) */
+function createOfflineZipBlob(files) {
+    const encoder = new TextEncoder();
+    const crcTable = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+        let c = i;
+        for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        crcTable[i] = c;
+    }
+    function crc32(buf) {
+        let crc = 0 ^ (-1);
+        for (let i = 0; i < buf.length; i++) crc = (crc >>> 8) ^ crcTable[(crc ^ buf[i]) & 0xFF];
+        return (crc ^ (-1)) >>> 0;
+    }
+
+    const localParts = [];
+    const centralParts = [];
+    let offset = 0;
+
+    files.forEach(file => {
+        const nameBytes = encoder.encode(file.name);
+        const dataBytes = encoder.encode(file.content);
+        const crc = crc32(dataBytes);
+
+        // Local File Header
+        const localHeader = new Uint8Array(30 + nameBytes.length);
+        const lv = new DataView(localHeader.buffer);
+        lv.setUint32(0, 0x04034b50, true);
+        lv.setUint16(4, 20, true);
+        lv.setUint16(6, 0x0800, true); // UTF-8
+        lv.setUint16(8, 0, true); // Store (no compression)
+        lv.setUint16(10, 0, true);
+        lv.setUint16(12, 0, true);
+        lv.setUint32(14, crc, true);
+        lv.setUint32(18, dataBytes.length, true);
+        lv.setUint32(22, dataBytes.length, true);
+        lv.setUint16(26, nameBytes.length, true);
+        lv.setUint16(28, 0, true);
+        localHeader.set(nameBytes, 30);
+
+        localParts.push(localHeader, dataBytes);
+
+        // Central Directory Header
+        const centralHeader = new Uint8Array(46 + nameBytes.length);
+        const cv = new DataView(centralHeader.buffer);
+        cv.setUint32(0, 0x02014b50, true);
+        cv.setUint16(4, 20, true);
+        cv.setUint16(6, 20, true);
+        cv.setUint16(8, 0x0800, true);
+        cv.setUint16(10, 0, true);
+        cv.setUint16(12, 0, true);
+        cv.setUint16(14, 0, true);
+        cv.setUint32(16, crc, true);
+        cv.setUint32(20, dataBytes.length, true);
+        cv.setUint32(24, dataBytes.length, true);
+        cv.setUint16(28, nameBytes.length, true);
+        cv.setUint16(30, 0, true);
+        cv.setUint16(32, 0, true);
+        cv.setUint16(34, 0, true);
+        cv.setUint16(36, 0, true);
+        cv.setUint32(38, 0, true);
+        cv.setUint32(42, offset, true);
+        centralHeader.set(nameBytes, 46);
+
+        centralParts.push(centralHeader);
+        offset += localHeader.length + dataBytes.length;
+    });
+
+    const centralSize = centralParts.reduce((acc, b) => acc + b.length, 0);
+    const eocd = new Uint8Array(22);
+    const ev = new DataView(eocd.buffer);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(4, 0, true);
+    ev.setUint16(6, 0, true);
+    ev.setUint16(8, files.length, true);
+    ev.setUint16(10, files.length, true);
+    ev.setUint32(12, centralSize, true);
+    ev.setUint32(16, offset, true);
+    ev.setUint16(20, 0, true);
+
+    return new Blob([...localParts, ...centralParts, eocd], { type: 'application/zip' });
+}
+
+function downloadFullZipPackage() {
+    const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+    const logoSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 220'><rect width='200' height='220' rx='36' fill='%23ffffff'/><path d='M22 45 L78 18 C62 65 72 105 95 142 L42 122 C25 112 22 95 22 45 Z' fill='%231e40af'/><path d='M88 10 L108 22 C92 65 102 105 122 142 L102 148 C82 110 74 62 88 10 Z' fill='%23ea580c'/><path d='M118 22 L138 34 C122 72 132 108 148 138 L130 144 C112 110 104 68 118 22 Z' fill='%23dc2626'/><path d='M148 34 L168 48 C154 78 162 108 175 130 L158 136 C142 110 136 74 148 34 Z' fill='%23eab308'/><text x='100' y='202' font-family='sans-serif' font-weight='900' font-size='56' fill='%231e3a8a' text-anchor='middle'>Jaci</text></svg>`;
+    const manifestJson = JSON.stringify({
+        name: "JACI Warehouse - أرشيف مستودع قطع الغيار",
+        short_name: "JACI مستودع",
+        start_url: "./index.html",
+        display: "standalone",
+        background_color: "#1e3a8a",
+        theme_color: "#1e3a8a",
+        dir: "rtl",
+        lang: "ar",
+        icons: [{ src: `data:image/svg+xml;utf8,${logoSvg}`, sizes: "512x512", type: "image/svg+xml" }]
+    }, null, 2);
+    const swJs = `const CACHE_NAME = 'jaci-warehouse-offline-v1';
+const ASSETS = ['./', './index.html', './manifest.json'];
+self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS))); self.skipWaiting(); });
+self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('./index.html')))); });`;
+    const readmeTxt = `منظومة أرشيف مستودع قطع الغيار - شركة JACI\n========================================\n1. افتح ملف index.html مباشرة على أي هاتف أو كمبيوتر ليعمل بدون إنترنت.\n2. لرفعه على GitHub وتحويله إلى تطبيق أندرويد، ارفع الملفات الثلاثة (index.html, manifest.json, sw.js).`;
+
+    const zipBlob = createOfflineZipBlob([
+        { name: 'index.html', content: fullHtml },
+        { name: 'manifest.json', content: manifestJson },
+        { name: 'sw.js', content: swJs },
+        { name: 'README.txt', content: readmeTxt }
+    ]);
+
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'JACI-Warehouse-App.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        document.getElementById('dl-modal-title').textContent = '📦 الحزمة المضغوطة جاهزة (ZIP)';
+        const dlLink = document.getElementById('dl-modal-link');
+        dlLink.href = url;
+        dlLink.download = 'JACI-Warehouse-App.zip';
+        dlLink.textContent = '⬇️ اضغط لحفظ (JACI-Warehouse-App.zip)';
+        document.getElementById('modal-file-dl').style.display = 'flex';
+    } else {
+        showToast('📦 تم تنزيل الحزمة المضغوطة (JACI-Warehouse-App.zip) بنجاح!');
+    }
+}
+
+let mediaStream = null;
+function startCamera() {
+    const box = document.getElementById('media-capture-box');
+    box.style.display = 'block';
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+    .then(stream => {
+        mediaStream = stream;
+        document.getElementById('camera-stream').srcObject = stream;
+    })
+    .catch(() => showToast('تعذر الوصول إلى الكاميرا'));
+}
+
+function stopCamera() {
+    if(mediaStream) {
+        mediaStream.getTracks().forEach(t => t.stop());
+        mediaStream = null;
+    }
+    document.getElementById('media-capture-box').style.display = 'none';
+}
+
+function takeSnapshot() {
+    const video = document.getElementById('camera-stream');
+    const canvas = document.getElementById('camera-canvas');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    db.archive.unshift({
+        title: 'صورة ملتقطة بالكاميرا',
+        type: 'صورة كاميرا',
+        ref: 'CAM-' + Date.now().toString().slice(-6),
+        date: new Date().toISOString().slice(0, 10),
+        note: 'مستودع JACI'
+    });
+    saveDB();
+    renderArchiveTable();
+    stopCamera();
+    showToast('📸 تم التقاط الصورة وحفظها بنجاح');
+}
+
+function startVoiceRecord() {
+    if(!navigator.mediaDevices?.getUserMedia) {
+        showToast('المتصفح لا يدعم تسجيل الصوت');
+        return;
+    }
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+        const mediaRecorder = new MediaRecorder(stream);
+        const chunks = [];
+        mediaRecorder.ondataavailable = e => chunks.push(e.data);
+        mediaRecorder.onstop = () => {
+            db.archive.unshift({
+                title: 'تسجيل صوتي للمستودع',
+                type: 'تسجيل صوتي',
+                ref: 'REC-' + Date.now().toString().slice(-6),
+                date: new Date().toISOString().slice(0, 10),
+                note: 'ملاحظة صوتية'
+            });
+            saveDB();
+            renderArchiveTable();
+            showToast('🎙️ تم تسجيل الصوت بنجاح');
+        };
+        mediaRecorder.start();
+        showToast('🎙️ جاري التسجيل... تحدث الآن (لمدة 4 ثوانٍ)');
+        setTimeout(() => {
+            mediaRecorder.stop();
+            stream.getTracks().forEach(t => t.stop());
+        }, 4000);
+    }).catch(() => showToast('تعذر الوصول إلى الميكروفون'));
+}
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('JACI_THEME_MODE');
+    const htmlEl = document.documentElement;
+    const btn = document.getElementById('theme-toggle-btn');
+    if (savedTheme === 'dark') {
+        htmlEl.setAttribute('data-theme', 'dark');
+        if (btn) btn.textContent = '☀️';
+    } else {
+        htmlEl.setAttribute('data-theme', 'light');
+        if (btn) btn.textContent = '🌙';
+    }
+}
+
+function toggleDarkMode() {
+    const htmlEl = document.documentElement;
+    const current = htmlEl.getAttribute('data-theme');
+    const btn = document.getElementById('theme-toggle-btn');
+    if (current === 'dark') {
+        htmlEl.setAttribute('data-theme', 'light');
+        localStorage.setItem('JACI_THEME_MODE', 'light');
+        if (btn) btn.textContent = '🌙';
+        showToast('☀️ الوضع النهاري مفعل');
+    } else {
+        htmlEl.setAttribute('data-theme', 'dark');
+        localStorage.setItem('JACI_THEME_MODE', 'dark');
+        if (btn) btn.textContent = '☀️';
+        showToast('🌙 الوضع الليلي مفعل');
+    }
+}
+
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+initTheme();
+renderAllTables();
+</script>
+
+</body></html>
